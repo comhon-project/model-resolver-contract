@@ -9,59 +9,32 @@ use Comhon\ModelResolverContract\ModelResolverInterface;
  */
 class ModelResolver implements ModelResolverInterface
 {
-    CONST MAP = [
-        'user' => '\MyApp\Models\User',
-        'company' => '\MyApp\Models\Company',
-        'invoice' => '\MyApp\Models\Invoice',
-    ];
-    CONST SCOPES = [
-        'my-scope' => ['user', 'company']
-    ];
+    public function __construct(private $bindings = [])
+    {
+        //
+    }
 
     /**
-     * get model unique name according given class
+     * Bind a unique name to a class.
+     */
+    public function bind(string $uniqueName, string $class): ?string
+    {
+        return $this->bindings[$uniqueName] = $class;
+    }
+
+    /**
+     * Get unique name according given class.
      */
     public function getUniqueName(string $class): ?string
     {
-        return array_search($class, self::MAP) ?: null;
+        return array_search($class, $this->bindings) ?: null;
     }
 
     /**
-     * get model class according unique name
+     * Get class according given unique name.
      */
     public function getClass(string $uniqueName): ?string
     {
-        return self::MAP[$uniqueName] ?? null;
-    }
-
-    /**
-     * verify if model is allowed in given scope
-     */
-    public function isAllowed(string $uniqueName, string $scope): bool
-    {
-        return isset(self::SCOPES[$scope]) && in_array($uniqueName, self::SCOPES[$scope]);
-    }
-
-    /**
-     * get all models unique names allowed in given scope
-     */
-    public function getUniqueNames(string $scope): array
-    {
-        return self::SCOPES[$scope] ?? [];
-    }
-
-    /**
-     * get all models classes allowed in given scope
-     */
-    public function getClasses(string $scope): array
-    {
-        if (!isset(self::SCOPES[$scope])) {
-            return [];
-        }
-        $classes = [];
-        foreach (self::SCOPES[$scope] as $uniqueName) {
-            $classes[] = $this->getClass($uniqueName);
-        }
-        return $classes;
+        return $this->bindings[$uniqueName] ?? null;
     }
 }
